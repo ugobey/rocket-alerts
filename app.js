@@ -2,20 +2,11 @@ const pikudHaoref = require("pikud-haoref-api");
 const colors = require("colors");
 const moment = require("moment");
 const platform = process.platform;
+let sound;
 
-if (platform === "win32")
-{
-    const sound = require("sound-play");
-    sound.play("E:\\Git\\rocket-alerts\\sound.mp3");
-} else if (platform === "linux" || platform === "darwin"){
-    const play = require('audio-play');
-    const load = require('audio-loader');
-
-    load('sound.mp3').then(play);
+if (platform === "win32") {
+    sound = require("sound-play");
 }
-
-
-
 
 console.log("ROCKET ALERT DETECTION STARTED".yellow);
 console.log("------------------------------".yellow);
@@ -30,6 +21,9 @@ let timerMissiles = 0;
 let alertsHostileAircraftIntrusion = [];
 let timerHostileAircraftIntrusion = 0;
 
+let soundAlertedMissiles = false;
+let soundAlertedHostileAircraftIntrusion = false;
+
 const poll = function () {
     const options = {};
 
@@ -42,6 +36,11 @@ const poll = function () {
 
         if (alert.type === "none") {
         } else if (alert.type === "missiles") {
+            if (platform === "win32" && !soundAlertedMissiles) {
+                soundAlertedMissiles = true;
+                sound.play("E:\\Git\\rocket-alerts\\sound.mp3");
+            }
+
             if (timerMissiles === 0) {
                 const setinterval = setInterval(() => {
                     timerMissiles++;
@@ -50,6 +49,7 @@ const poll = function () {
                         clearInterval(setinterval);
                         alertsMissiles = [];
                         timerMissiles = 0;
+                        soundAlertedMissiles = false;
                     }
                 }, 1000);
             }
@@ -71,9 +71,12 @@ const poll = function () {
                 //console.log("Instructions: " + instructions.yellow);
                 console.log();
             }
-        }
-        
-        else if (alert.type === "hostileAircraftIntrusion") {
+        } else if (alert.type === "hostileAircraftIntrusion") {
+            if (platform === "win32" && !soundAlertedHostileAircraftIntrusion) {
+                soundAlertedHostileAircraftIntrusion = true;
+                sound.play("E:\\Git\\rocket-alerts\\sound.mp3");
+            }
+
             if (timerHostileAircraftIntrusion === 0) {
                 const setinterval = setInterval(() => {
                     timerHostileAircraftIntrusion++;
@@ -82,6 +85,7 @@ const poll = function () {
                         clearInterval(setinterval);
                         alertsHostileAircraftIntrusion = [];
                         timerHostileAircraftIntrusion = 0;
+                        soundAlertedHostileAircraftIntrusion = false;
                     }
                 }, 1000);
             }
@@ -103,8 +107,7 @@ const poll = function () {
                 //console.log("Instructions: " + instructions.yellow);
                 console.log();
             }
-        }
-        else {
+        } else {
             console.log(alert);
             console.log();
         }
