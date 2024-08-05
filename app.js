@@ -39,7 +39,7 @@ const poll = function () {
                 }, 1000);
             }
 
-            const cities = alert.cities;
+            const cities = alert.cities.split("").reverse().join("");
             const instructions = alert.instructions;
 
             if (cities) {
@@ -71,7 +71,7 @@ const poll = function () {
                 }, 1000);
             }
 
-            const cities = alert.cities;
+            const cities = alert.cities.split("").reverse().join("");
             const instructions = alert.instructions;
 
             if (cities) {
