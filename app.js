@@ -9,8 +9,11 @@ console.log();
 
 const interval = 5000;
 
-let alerts = [];
-let timer = 0;
+let alertsMissiles = [];
+let timerMissiles = 0;
+
+let alertsHostileAircraftIntrusion = [];
+let timerHostileAircraftIntrusion = 0;
 
 const poll = function () {
     const options = {};
@@ -24,16 +27,14 @@ const poll = function () {
 
         if (alert.type === "none") {
         } else if (alert.type === "missiles") {
-            if (timer === 0) {
+            if (timerMissiles === 0) {
                 const setinterval = setInterval(() => {
-                    timer++;
+                    timerMissiles++;
 
-                    console.log(timer);
-
-                    if (timer >= 30) {
+                    if (timerMissiles >= 30) {
                         clearInterval(setinterval);
-                        alerts = [];
-                        timer = 0;
+                        alertsMissiles = [];
+                        timerMissiles = 0;
                     }
                 }, 1000);
             }
@@ -45,9 +46,9 @@ const poll = function () {
                 console.log("ROCKET ALERT".red + " on " + moment().format("MMMM Do YYYY, h:mm:ss a"));
 
                 for (let i = 0; i < cities.length; i++) {
-                    alerts.push(cities[i]);
+                    if (!alertsMissiles.includes(cities[i])) {
+                        alertsMissiles.push(cities[i]);
 
-                    if (!alerts.includes(cities[i])) {
                         console.log(cities[i].cyan);
                     }
                 }
@@ -55,7 +56,40 @@ const poll = function () {
                 //console.log("Instructions: " + instructions.yellow);
                 console.log();
             }
-        } else {
+        }
+        
+        else if (alert.type === "hostileAircraftIntrusion") {
+            if (timerHostileAircraftIntrusion === 0) {
+                const setinterval = setInterval(() => {
+                    timerHostileAircraftIntrusion++;
+
+                    if (timerHostileAircraftIntrusion >= 30) {
+                        clearInterval(setinterval);
+                        alertsHostileAircraftIntrusion = [];
+                        timerHostileAircraftIntrusion = 0;
+                    }
+                }, 1000);
+            }
+
+            const cities = alert.cities;
+            const instructions = alert.instructions;
+
+            if (cities) {
+                console.log("HOSTILE AIRCRAFT ALERT".red + " on " + moment().format("MMMM Do YYYY, h:mm:ss a"));
+
+                for (let i = 0; i < cities.length; i++) {
+                    if (!alertsHostileAircraftIntrusion.includes(cities[i])) {
+                        alertsHostileAircraftIntrusion.push(cities[i]);
+
+                        console.log(cities[i].cyan);
+                    }
+                }
+
+                //console.log("Instructions: " + instructions.yellow);
+                console.log();
+            }
+        }
+        else {
             console.log(alert);
             console.log();
         }
