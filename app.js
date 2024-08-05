@@ -1,6 +1,21 @@
 const pikudHaoref = require("pikud-haoref-api");
 const colors = require("colors");
 const moment = require("moment");
+const platform = process.platform;
+
+if (platform === "win32")
+{
+    const sound = require("sound-play");
+    sound.play("E:\\Git\\rocket-alerts\\sound.mp3");
+} else if (platform === "linux" || platform === "darwin"){
+    const play = require('audio-play');
+    const load = require('audio-loader');
+
+    load('sound.mp3').then(play);
+}
+
+
+
 
 console.log("ROCKET ALERT DETECTION STARTED".yellow);
 console.log("------------------------------".yellow);
