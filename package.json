@@ -1,0 +1,16 @@
+{
+  "name": "rocket-alerts",
+  "version": "1.0.0",
+  "description": "A simple alert using Pikud Haoref's unofficial alerts API.",
+  "main": "index.js",
+  "author": "Uri Gobey",
+  "license": "",
+  "dependencies": {
+    "co": "^4.6.0",
+    "co-request": "^1.0.0",
+    "colors": "^1.4.0",
+    "moment": "^2.30.1",
+    "pikud-haoref-api": "^3.0.5",
+    "request": "^2.69.0"
+  }
+}
