@@ -54,17 +54,20 @@ const poll = function () {
                 }, 1000);
             }
 
-            const cities = alert.cities.split("").reverse().join("");
+            const cities = alert.cities;
             const instructions = alert.instructions;
 
             if (cities) {
                 console.log("ROCKET ALERT".red + " on " + moment().format("MMMM Do YYYY, h:mm:ss a"));
 
                 for (let i = 0; i < cities.length; i++) {
-                    if (!alertsMissiles.includes(cities[i])) {
-                        alertsMissiles.push(cities[i]);
 
-                        console.log(cities[i].cyan);
+                    const city = cities[i].split("").reverse().join("");
+
+                    if (!alertsMissiles.includes(city)) {
+                        alertsMissiles.push(city);
+
+                        console.log(city.cyan);
                     }
                 }
 
@@ -97,10 +100,13 @@ const poll = function () {
                 console.log("HOSTILE AIRCRAFT ALERT".red + " on " + moment().format("MMMM Do YYYY, h:mm:ss a"));
 
                 for (let i = 0; i < cities.length; i++) {
-                    if (!alertsHostileAircraftIntrusion.includes(cities[i])) {
-                        alertsHostileAircraftIntrusion.push(cities[i]);
 
-                        console.log(cities[i].cyan);
+                    const city = cities[i].split("").reverse().join("");
+
+                    if (!alertsHostileAircraftIntrusion.includes(city)) {
+                        alertsHostileAircraftIntrusion.push(city);
+
+                        console.log(city.cyan);
                     }
                 }
 
