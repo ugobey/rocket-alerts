@@ -1,19 +1,13 @@
 const pikudHaoref = require("pikud-haoref-api");
 const colors = require("colors");
 const moment = require("moment");
-const platform = process.platform;
-let sound;
-
-if (platform === "win32") {
-    sound = require("sound-play");
-}
 
 console.log("ROCKET ALERT DETECTION STARTED".yellow);
 console.log("------------------------------".yellow);
-
 console.log();
 
 const interval = 5000;
+const timerMax = 33;
 
 let alertsMissiles = [];
 let timerMissiles = 0;
@@ -22,9 +16,6 @@ let timerMissilesEnabled = false;
 let alertsHostileAircraft = [];
 let timerHostileAircraft = 0;
 let timerHostileAircraftEnabled = false;
-
-let soundAlertedMissiles = false;
-let soundAlertedHostileAircraft = false;
 
 const poll = function () {
     const options = {};
@@ -38,21 +29,15 @@ const poll = function () {
 
         if (alert.type === "none") {
         } else if (alert.type === "missiles") {
-            if (platform === "win32" && !soundAlertedMissiles) {
-                soundAlertedMissiles = true;
-                sound.play("E:\\Git\\rocket-alerts\\sound.mp3");
-            }
-
             if (timerMissiles === 0) {
                 const setinterval = setInterval(() => {
                     timerMissiles++;
 
-                    if (timerMissiles >= 30) {
+                    if (timerMissiles >= timerMax) {
                         clearInterval(setinterval);
                         alertsMissiles = [];
                         timerMissiles = 0;
                         timerMissilesEnabled = false;
-                        soundAlertedMissiles = false;
                     }
                 }, 1000);
             }
@@ -82,21 +67,15 @@ const poll = function () {
                 timerMissilesEnabled = true;
             }
         } else if (alert.type === "hostileAircraftIntrusion") {
-            if (platform === "win32" && !soundAlertedHostileAircraft) {
-                soundAlertedHostileAircraft = true;
-                sound.play("E:\\Git\\rocket-alerts\\sound.mp3");
-            }
-
             if (timerHostileAircraft === 0) {
                 const setinterval = setInterval(() => {
                     timerHostileAircraft++;
 
-                    if (timerHostileAircraft >= 30) {
+                    if (timerHostileAircraft >= timerMax) {
                         clearInterval(setinterval);
                         alertsHostileAircraft = [];
                         timerHostileAircraft = 0;
                         timerHostileAircraftEnabled = false;
-                        soundAlertedHostileAircraft = false;
                     }
                 }, 1000);
             }
