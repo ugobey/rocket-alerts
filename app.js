@@ -17,12 +17,14 @@ const interval = 5000;
 
 let alertsMissiles = [];
 let timerMissiles = 0;
+let timerMissilesEnabled = false;
 
-let alertsHostileAircraftIntrusion = [];
-let timerHostileAircraftIntrusion = 0;
+let alertsHostileAircraft = [];
+let timerHostileAircraft = 0;
+let timerHostileAircraftEnabled = false;
 
 let soundAlertedMissiles = false;
-let soundAlertedHostileAircraftIntrusion = false;
+let soundAlertedHostileAircraft = false;
 
 const poll = function () {
     const options = {};
@@ -49,6 +51,7 @@ const poll = function () {
                         clearInterval(setinterval);
                         alertsMissiles = [];
                         timerMissiles = 0;
+                        timerMissilesEnabled = false;
                         soundAlertedMissiles = false;
                     }
                 }, 1000);
@@ -58,63 +61,72 @@ const poll = function () {
             const instructions = alert.instructions;
 
             if (cities) {
-                console.log("ROCKET ALERT".red + " on " + moment().format("MMMM Do YYYY, h:mm:ss a"));
+                if (!timerMissilesEnabled) {
+                    console.log("ROCKET ALERT".red + " on " + moment().format("MMMM Do YYYY, h:mm:ss a"));
+                }
 
                 for (let i = 0; i < cities.length; i++) {
-
                     const city = cities[i].split("").reverse().join("");
 
                     if (!alertsMissiles.includes(city)) {
                         alertsMissiles.push(city);
 
-                        console.log(city.cyan);
+                        console.log(city);
                     }
                 }
 
-                //console.log("Instructions: " + instructions.yellow);
-                console.log();
+                if (!timerMissilesEnabled) {
+                    console.log();
+                }
+
+                timerMissilesEnabled = true;
             }
         } else if (alert.type === "hostileAircraftIntrusion") {
-            if (platform === "win32" && !soundAlertedHostileAircraftIntrusion) {
-                soundAlertedHostileAircraftIntrusion = true;
+            if (platform === "win32" && !soundAlertedHostileAircraft) {
+                soundAlertedHostileAircraft = true;
                 sound.play("E:\\Git\\rocket-alerts\\sound.mp3");
             }
 
-            if (timerHostileAircraftIntrusion === 0) {
+            if (timerHostileAircraft === 0) {
                 const setinterval = setInterval(() => {
-                    timerHostileAircraftIntrusion++;
+                    timerHostileAircraft++;
 
-                    if (timerHostileAircraftIntrusion >= 30) {
+                    if (timerHostileAircraft >= 30) {
                         clearInterval(setinterval);
-                        alertsHostileAircraftIntrusion = [];
-                        timerHostileAircraftIntrusion = 0;
-                        soundAlertedHostileAircraftIntrusion = false;
+                        alertsHostileAircraft = [];
+                        timerHostileAircraft = 0;
+                        timerHostileAircraftEnabled = false;
+                        soundAlertedHostileAircraft = false;
                     }
                 }, 1000);
             }
 
-            const cities = alert.cities.split("").reverse().join("");
+            const cities = alert.cities;
             const instructions = alert.instructions;
 
             if (cities) {
-                console.log("HOSTILE AIRCRAFT ALERT".red + " on " + moment().format("MMMM Do YYYY, h:mm:ss a"));
+                if (!timerHostileAircraftEnabled) {
+                    console.log("HOSTILE AIRCRAFT ALERT".red + " on " + moment().format("MMMM Do YYYY, h:mm:ss a"));
+                }
 
                 for (let i = 0; i < cities.length; i++) {
-
                     const city = cities[i].split("").reverse().join("");
 
-                    if (!alertsHostileAircraftIntrusion.includes(city)) {
-                        alertsHostileAircraftIntrusion.push(city);
+                    if (!alertsHostileAircraft.includes(city)) {
+                        alertsHostileAircraft.push(city);
 
-                        console.log(city.cyan);
+                        console.log(city);
                     }
                 }
 
-                //console.log("Instructions: " + instructions.yellow);
-                console.log();
+                if (!timerHostileAircraftEnabled) {
+                    console.log();
+                }
+
+                timerHostileAircraftEnabled = true;
             }
         } else {
-            console.log(alert);
+            console.log("test", alert);
             console.log();
         }
     }, options);
