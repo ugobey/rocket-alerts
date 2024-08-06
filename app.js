@@ -126,7 +126,7 @@ const poll = function () {
                 timerHostileAircraftEnabled = true;
             }
         } else {
-            console.log("test", alert);
+            console.log(alert);
             console.log();
         }
     }, options);
