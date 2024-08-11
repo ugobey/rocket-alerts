@@ -2,111 +2,109 @@ const pikudHaoref = require("pikud-haoref-api");
 const colors = require("colors");
 const moment = require("moment");
 
+const fs = require("fs");
+const readCitiesJSON = fs.readFileSync("cities.json");
+const citiesJSON = JSON.parse(readCitiesJSON);
+
 console.log("ROCKET ALERT DETECTION STARTED".yellow);
 console.log("------------------------------".yellow);
 console.log();
 
 const interval = 5000;
-const timerMax = 33;
+const recentlyAlertedCities = {};
 
-let alertsMissiles = [];
-let timerMissiles = 0;
-let timerMissilesEnabled = false;
+function getAlertTypeByCategory(type) {
+    switch (type) {
+        case "missiles":
+            return "Rocket Alert";
+        case "general":
+            return "General Alert";
+        case "earthQuake":
+            return "Earthquake Alert";
+        case "radiologicalEvent":
+            return "Radiological Alert";
+        case "tsunami":
+            return "Tsunami Alert";
+        case "hostileAircraftIntrusion":
+            return "Hostile Aircraft Alert";
+        case "hazardousMaterials":
+            return "Hazardous Materials Alert";
+        case "terroristInfiltration":
+            return "Terrorist Infiltration Alert";
+        case "missilesDrill":
+            return "Drill - Rocket Alert";
+        case "generalDrill":
+            return "Drill  - General Alert";
+        case "earthQuakeDrill":
+            return "Drill - Earthquake Alert";
+        case "radiologicalEventDrill":
+            return "Drill - Radiological Alert";
+        case "tsunamiDrill":
+            return "Drill - Tsunami Alert";
+        case "hostileAircraftIntrusionDrill":
+            return "Drill - Hostile Aircraft Alert";
+        case "hazardousMaterialsDrill":
+            return "Drill - Hazardous Materials";
+        case "terroristInfiltrationDrill":
+            return "Drill - Terrorist Infiltration Alert";
+        default:
+            return "No Alert";
+    }
+}
 
-let alertsHostileAircraft = [];
-let timerHostileAircraft = 0;
-let timerHostileAircraftEnabled = false;
+function extractNewCities(alertCities) {
+    const newCities = [];
+    const now = Math.floor(Date.now() / 1000);
+
+    for (let city of alertCities) {
+        if (!recentlyAlertedCities[city] || recentlyAlertedCities[city] < now - 60 * 3) {
+            newCities.push(city);
+            recentlyAlertedCities[city] = now;
+        }
+    }
+
+    return newCities;
+}
 
 const poll = function () {
     const options = {};
 
     pikudHaoref.getActiveAlert(function (err, alert) {
-        setTimeout(poll, interval);
+        const alertType = alert.type;
+        if (alertType) {
+            const alertTypeText = getAlertTypeByCategory(alertType);
+            const timeStamp = moment().format("MMMM Do YYYY, h:mm:ss a");
 
-        if (err) {
-            return console.log("ERROR: ".red, err);
-        }
+            setTimeout(poll, interval);
 
-        if (alert.type === "none") {
-        } else if (alert.type === "missiles") {
-            if (timerMissiles === 0) {
-                const setinterval = setInterval(() => {
-                    timerMissiles++;
-
-                    if (timerMissiles >= timerMax) {
-                        clearInterval(setinterval);
-                        alertsMissiles = [];
-                        timerMissiles = 0;
-                        timerMissilesEnabled = false;
-                    }
-                }, 1000);
+            if (err) {
+                return console.log("ERROR: ".red, err);
             }
 
-            const cities = alert.cities;
-            const instructions = alert.instructions;
+            if (alertType === "none") {
+                //console.log(alertTypeText.red);
+            } else {
+                const cities = extractNewCities(alert.cities);
+                const instructions = alert.instructions;
 
-            if (cities) {
-                if (!timerMissilesEnabled) {
-                    console.log("ROCKET ALERT".red + " on " + moment().format("MMMM Do YYYY, h:mm:ss a"));
-                }
+                if (cities) {
+                    for (let i = 0; i < cities.length; i++) {
+                        const cityOriginal = cities[i].split("").reverse().join("");
+                        let city = cities[i];
 
-                for (let i = 0; i < cities.length; i++) {
-                    const city = cities[i].split("").reverse().join("");
+                        for (let c = 0; c < citiesJSON.length; c++) {
+                            if (citiesJSON[c].value === city) {
+                                city = citiesJSON[c].name_en;
+                                break;
+                            }
+                        }
 
-                    if (!alertsMissiles.includes(city)) {
-                        alertsMissiles.push(city);
-
-                        console.log(city);
+                        if (city) {
+                            console.log(alertTypeText.red + " on " + timeStamp.yellow + " in " + city + " (" + cityOriginal + ")");
+                        }
                     }
                 }
-
-                if (!timerMissilesEnabled) {
-                    console.log();
-                }
-
-                timerMissilesEnabled = true;
             }
-        } else if (alert.type === "hostileAircraftIntrusion") {
-            if (timerHostileAircraft === 0) {
-                const setinterval = setInterval(() => {
-                    timerHostileAircraft++;
-
-                    if (timerHostileAircraft >= timerMax) {
-                        clearInterval(setinterval);
-                        alertsHostileAircraft = [];
-                        timerHostileAircraft = 0;
-                        timerHostileAircraftEnabled = false;
-                    }
-                }, 1000);
-            }
-
-            const cities = alert.cities;
-            const instructions = alert.instructions;
-
-            if (cities) {
-                if (!timerHostileAircraftEnabled) {
-                    console.log("HOSTILE AIRCRAFT ALERT".red + " on " + moment().format("MMMM Do YYYY, h:mm:ss a"));
-                }
-
-                for (let i = 0; i < cities.length; i++) {
-                    const city = cities[i].split("").reverse().join("");
-
-                    if (!alertsHostileAircraft.includes(city)) {
-                        alertsHostileAircraft.push(city);
-
-                        console.log(city);
-                    }
-                }
-
-                if (!timerHostileAircraftEnabled) {
-                    console.log();
-                }
-
-                timerHostileAircraftEnabled = true;
-            }
-        } else {
-            console.log(alert);
-            console.log();
         }
     }, options);
 };
