@@ -172,7 +172,7 @@ const poll = async function () {
                                     cityoriginal, 
                                     datetime
                                 )
-                                VALUES 
+                                VALUES  
                                 (
                                     $1, 
                                     $2, 
