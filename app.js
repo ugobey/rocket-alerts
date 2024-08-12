@@ -66,6 +66,16 @@ function extractNewCities(alertCities) {
     return newCities;
 }
 
+function errorHandler(err) {
+    const stringError = err.toString();
+
+    if (stringError.indexOf("403 Forbidden") > -1) {
+        console.log("ERROR: ".red + "403 Forbidden - Requires Israeli IP".yellow);
+    } else {
+        console.log("ERROR: ".red, err);
+    }
+}
+
 const poll = function () {
     const options = {};
 
@@ -73,7 +83,8 @@ const poll = function () {
         setTimeout(poll, interval);
 
         if (err) {
-            return console.log("ERROR: ".red, err);
+            errorHandler(err);
+            return;
         }
 
         const alertType = alert.type;
