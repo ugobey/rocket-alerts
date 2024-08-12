@@ -70,16 +70,16 @@ const poll = function () {
     const options = {};
 
     pikudHaoref.getActiveAlert(function (err, alert) {
+        setTimeout(poll, interval);
+
+        if (err) {
+            return console.log("ERROR: ".red, err);
+        }
+
         const alertType = alert.type;
         if (alertType) {
             const alertTypeText = getAlertTypeByCategory(alertType);
             const timeStamp = moment().format("MMMM Do YYYY, h:mm:ss a");
-
-            setTimeout(poll, interval);
-
-            if (err) {
-                return console.log("ERROR: ".red, err);
-            }
 
             if (alertType === "none") {
                 //console.log(alertTypeText.red);
