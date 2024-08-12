@@ -1,61 +1,14 @@
-const parameters = process.argv;
-let appMode = parameters[2];
-
-if (appMode === undefined) {
-    appMode = "prod";
-}
-
-require("dotenv").config();
-
 const pikudHaoref = require("pikud-haoref-api");
 const colors = require("colors");
 const moment = require("moment");
+
 const fs = require("fs");
-const { Pool } = require("pg");
-
-const POSTGRES_USER = process.env.POSTGRES_USER;
-const POSTGRES_PASS = process.env.POSTGRES_PASS;
-const POSTGRES_HOST = process.env.POSTGRES_HOST;
-const POSTGRES_DATABASE = process.env.POSTGRES_DATABASE;
-let POSTGRES_SSL = { rejectUnauthorized: false };
-if (appMode === "dev") {
-    POSTGRES_SSL = false;
-}
-
-const pool = new Pool({
-    user: POSTGRES_USER,
-    password: POSTGRES_PASS,
-    host: POSTGRES_HOST,
-    database: POSTGRES_DATABASE,
-    port: 5432,
-    ssl: POSTGRES_SSL,
-    connectionTimeoutMillis: 5000,
-    idleTimeoutMillis: 10000,
-});
-
-pool.on("error", (err, client) => {
-    errorHandler("SQL Error : " + err);
-    process.exit(-1);
-});
-
-function errorHandler(err) {
-    const stringError = err.toString();
-
-    if (stringError.indexOf("403 Forbidden") > -1) {
-        console.log("ERROR: ".red + "403 Forbidden - Requires Israeli IP".yellow);
-    } else {
-        console.log("ERROR: ".red, err);
-    }
-}
-
-const startMessage = "ROCKET ALERT DETECTION STARTED (" + appMode + ")";
-
-console.log(startMessage.yellow);
-console.log("-------------------------------------".yellow);
-console.log();
-
 const readCitiesJSON = fs.readFileSync("cities.json");
 const citiesJSON = JSON.parse(readCitiesJSON);
+
+console.log("ROCKET ALERT DETECTION STARTED".yellow);
+console.log("------------------------------".yellow);
+console.log();
 
 const interval = 5000;
 const recentlyAlertedCities = {};
@@ -113,32 +66,20 @@ function extractNewCities(alertCities) {
     return newCities;
 }
 
-function datetimeStamp(type, date) {
-    const dt = new Date(date);
+const poll = function () {
+    const options = {};
 
-    if (type && type === "sql") {
-        return moment(dt).format("YYYY-MM-DDTHH:mm:ss.SSS");
-    } else {
-        return moment(dt).format("MMMM Do YYYY, h:mm:ss a");
-    }
-}
-
-const poll = async function () {
-    const options = { proxy: "51.17.115.81:8080" };
-
-    pikudHaoref.getActiveAlert(async function (err, alert) {
+    pikudHaoref.getActiveAlert(function (err, alert) {
         setTimeout(poll, interval);
 
         if (err) {
-            errorHandler(err);
-            return;
+            return console.log("ERROR: ".red, err);
         }
 
         const alertType = alert.type;
         if (alertType) {
             const alertTypeText = getAlertTypeByCategory(alertType);
-            const dateNow = Date.now();
-            const timeStamp = datetimeStamp("regular", dateNow);
+            const timeStamp = moment().format("MMMM Do YYYY, h:mm:ss a");
 
             if (alertType === "none") {
                 //console.log(alertTypeText.red);
@@ -147,9 +88,6 @@ const poll = async function () {
                 const instructions = alert.instructions;
 
                 if (cities) {
-                    const client = await pool.connect();
-                    const timeStampSQL = datetimeStamp("sql", dateNow);
-
                     for (let i = 0; i < cities.length; i++) {
                         const cityOriginal = cities[i].split("").reverse().join("");
                         let city = cities[i];
@@ -163,30 +101,8 @@ const poll = async function () {
 
                         if (city) {
                             console.log(alertTypeText.red + " on " + timeStamp.yellow + " in " + city + " (" + cityOriginal + ")");
-
-                            const insertAlertsQuery = ` 
-                                INSERT INTO alerts 
-                                (
-                                    alert_type,
-                                    city, 
-                                    cityoriginal, 
-                                    datetime
-                                )
-                                VALUES  
-                                (
-                                    $1, 
-                                    $2, 
-                                    $3, 
-                                    $4
-                                )
-                            `;
-
-                            const insertAlertsValues = [alertType, city, cityOriginal, timeStampSQL];
-                            await client.query(insertAlertsQuery, insertAlertsValues);
                         }
                     }
-
-                    client.release();
                 }
             }
         }
