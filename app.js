@@ -124,7 +124,7 @@ function datetimeStamp(type, date) {
 }
 
 const poll = async function () {
-    const options = {};
+    const options = { proxy: "51.17.115.81:8080" };
 
     pikudHaoref.getActiveAlert(async function (err, alert) {
         setTimeout(poll, interval);
