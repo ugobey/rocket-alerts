@@ -57,7 +57,7 @@ function extractNewCities(alertCities) {
     const now = Math.floor(Date.now() / 1000);
 
     for (let city of alertCities) {
-        if (!recentlyAlertedCities[city] || recentlyAlertedCities[city] < now - 60 * 3) {
+        if (!recentlyAlertedCities[city] || recentlyAlertedCities[city] < now - 60) {
             newCities.push(city);
             recentlyAlertedCities[city] = now;
         }
