@@ -112,11 +112,12 @@ const poll = function () {
 
                         if (city) {
                             console.log(alertTypeText.red + " on " + timeStamp.yellow + " in " + city + " (" + cityOriginal + ")");
+                            fs.appendFileSync("alerts.txt", alertTypeText + " on " + timeStamp + " in " + city + " (" + cityOriginal + ")\n");
                         }
                     }
                 }
             }
-        }
+        } 
     }, options);
 };
 
