@@ -71,8 +71,6 @@ function errorHandler(err) {
 
     if (stringError.indexOf("403 Forbidden") > -1) {
         console.log("ERROR: ".red + "403 Forbidden - Requires Israeli IP".yellow);
-    } else {
-        console.log("ERROR: ".red, err);
     }
 }
 
@@ -84,6 +82,7 @@ const poll = function () {
 
         if (err) {
             errorHandler(err);
+            fs.appendFileSync("errors.txt", err + "\n\n");
             return;
         }
 
@@ -117,7 +116,7 @@ const poll = function () {
                     }
                 }
             }
-        } 
+        }
     }, options);
 };
 
