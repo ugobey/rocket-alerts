@@ -6,12 +6,13 @@ const fs = require("fs");
 const readCitiesJSON = fs.readFileSync("cities.json");
 const citiesJSON = JSON.parse(readCitiesJSON);
 
-console.log("ROCKET ALERT DETECTION STARTED".yellow);
-console.log("------------------------------".yellow);
+console.log("PIKUD HA'OREF ALERTS".yellow);
+console.log("--------------------".yellow);
 console.log();
 
 const interval = 5000;
 const recentlyAlertedCities = {};
+let counter = 0;
 
 function getAlertTypeByCategory(type) {
     switch (type) {
@@ -110,7 +111,8 @@ const poll = function () {
                         }
 
                         if (city) {
-                            console.log(alertTypeText.red + " on " + timeStamp.yellow + " in " + city + " (" + cityOriginal + ")");
+                            counter++
+                            console.log(counter + ") " + alertTypeText.red + " on " + timeStamp.yellow + " in " + city + " (" + cityOriginal + ")");
                             fs.appendFileSync("alerts.txt", alertTypeText + " on " + timeStamp + " in " + city + " (" + cityOriginal + ")\n");
                         }
                     }
